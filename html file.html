@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Student AI Hub - useful AI tools for study, coding, ECE, design, video and career.">
+<title>Student AI Hub</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:#070b14;color:#eef2ff;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 15% 10%,#27355c55,transparent 35%),radial-gradient(circle at 90% 20%,#3b1d5950,transparent 30%);pointer-events:none}
+.container{width:min(1180px,92%);margin:auto;position:relative}
+header{padding:55px 0 30px;text-align:center}
+.badge{display:inline-block;padding:7px 14px;border:1px solid #ffffff20;border-radius:999px;background:#ffffff0c;font-size:13px;color:#b9c4e6;margin-bottom:18px}
+h1{font-size:clamp(34px,7vw,64px);line-height:1.05;letter-spacing:-2px}
+h1 span{background:linear-gradient(90deg,#8fb4ff,#d39bff);-webkit-background-clip:text;color:transparent}
+.subtitle{max-width:680px;margin:16px auto 28px;color:#aeb8d4;font-size:16px;line-height:1.6}
+.search{max-width:650px;margin:auto;display:flex;align-items:center;background:#ffffff0b;border:1px solid #ffffff18;border-radius:18px;padding:5px;backdrop-filter:blur(16px)}
+.search input{flex:1;background:transparent;border:0;outline:0;color:white;padding:14px;font-size:15px}
+.search button{border:0;border-radius:13px;padding:12px 18px;background:#fff;color:#111827;font-weight:700;cursor:pointer}
+.categories{display:flex;gap:9px;overflow:auto;padding:10px 0 22px;scrollbar-width:none}
+.categories button{white-space:nowrap;border:1px solid #ffffff15;background:#ffffff08;color:#bfc8e1;padding:10px 15px;border-radius:12px;cursor:pointer}
+.categories button.active,.categories button:hover{background:#ffffff18;color:white}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;padding-bottom:50px}
+.card{background:#ffffff0b;border:1px solid #ffffff14;border-radius:20px;padding:20px;backdrop-filter:blur(15px);transition:.2s;position:relative}
+.card:hover{transform:translateY(-3px);border-color:#ffffff30;background:#ffffff10}
+.icon{font-size:30px;margin-bottom:13px}
+.card h3{font-size:18px;margin-bottom:7px}
+.card p{font-size:13px;line-height:1.55;color:#aeb8d4;min-height:41px}
+.meta{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
+.tag{font-size:11px;padding:5px 8px;border-radius:7px;background:#ffffff0c;color:#bbc5df}
+.actions{display:flex;gap:8px;margin-top:14px}
+.open{flex:1;text-align:center;text-decoration:none;background:#eef2ff;color:#111827;padding:10px;border-radius:10px;font-size:13px;font-weight:750}
+.fav{width:42px;border:1px solid #ffffff16;background:#ffffff08;color:#dce4ff;border-radius:10px;cursor:pointer;font-size:18px}
+.fav.saved{background:#ffffff18}
+.empty{grid-column:1/-1;text-align:center;color:#9da8c5;padding:50px}
+footer{text-align:center;border-top:1px solid #ffffff10;padding:25px 0 40px;color:#7f8aa8;font-size:12px}
+@media(max-width:600px){header{padding-top:35px}.search button{padding:11px 13px}.card{padding:17px}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <div class="badge">⚡ Built for students • Study • Code • Create</div>
+  <h1>Student <span>AI Hub</span></h1>
+  <p class="subtitle">One place for useful AI tools for study, ECE, coding, presentations, video creation and career growth.</p>
+  <div class="search">
+    <input id="search" type="search" placeholder="Search tools...">
+    <button onclick="clearSearch()">Clear</button>
+  </div>
+</header>
+
+<div class="categories" id="categories"></div>
+<section class="grid" id="grid"></section>
+
+<footer>Student AI Hub • Use official websites and check each tool's current pricing/limits.</footer>
+</div>
+
+<script>
+const tools=[
+{name:"ChatGPT",cat:"Study",icon:"🤖",desc:"Learn concepts, solve doubts, write and debug code.",status:"Free / Paid",url:"https://chatgpt.com/"},
+{name:"Gemini",cat:"Study",icon:"✨",desc:"AI assistant for learning, brainstorming and research.",status:"Free / Paid",url:"https://gemini.google.com/"},
+{name:"NotebookLM",cat:"Study",icon:"📖",desc:"Turn your PDFs and notes into summaries, quizzes and study guides.",status:"Free / Paid",url:"https://notebooklm.google.com/"},
+{name:"Perplexity",cat:"Research",icon:"🔎",desc:"Research questions with web sources and citations.",status:"Free / Paid",url:"https://www.perplexity.ai/"},
+{name:"Claude",cat:"Study",icon:"🧠",desc:"Strong assistant for writing, reasoning and long documents.",status:"Free / Paid",url:"https://claude.ai/"},
+{name:"GitHub Copilot",cat:"Coding",icon:"💻",desc:"AI coding assistance inside supported development environments.",status:"Free / Paid",url:"https://github.com/features/copilot"},
+{name:"Cursor",cat:"Coding",icon:"⌨️",desc:"AI-powered code editor for building and understanding projects.",status:"Free / Paid",url:"https://www.cursor.com/"},
+{name:"Replit",cat:"Coding",icon:"🧑‍💻",desc:"Build and run coding projects with an online development environment.",status:"Free / Paid",url:"https://replit.com/"},
+{name:"Tinkercad",cat:"ECE",icon:"⚡",desc:"Design and simulate beginner electronics and Arduino circuits.",status:"Free",url:"https://www.tinkercad.com/"},
+{name:"LTspice",cat:"ECE",icon:"🔌",desc:"Circuit simulation tool for electronics analysis and design.",status:"Free",url:"https://www.analog.com/en/resources/design-tools-and-calculators/ltspice-simulator.html"},
+{name:"MATLAB",cat:"ECE",icon:"📈",desc:"Useful for signals, systems, numerical computing and simulation.",status:"Paid / Student",url:"https://www.mathworks.com/products/matlab.html"},
+{name:"Canva",cat:"Design",icon:"🎨",desc:"Create presentations, posters, resumes and graphics with AI features.",status:"Free / Paid",url:"https://www.canva.com/"},
+{name:"Gamma",cat:"Design",icon:"📊",desc:"Create presentations and documents with AI.",status:"Free / Paid",url:"https://gamma.app/"},
+{name:"Napkin AI",cat:"Design",icon:"🗺️",desc:"Turn ideas and text into visual diagrams and graphics.",status:"Free / Paid",url:"https://www.napkin.ai/"},
+{name:"Google Flow",cat:"Video",icon:"🎬",desc:"Create and experiment with AI-generated video workflows.",status:"Availability varies",url:"https://labs.google/flow/about"},
+{name:"Kling AI",cat:"Video",icon:"🎥",desc:"AI video generation and creative video tools.",status:"Free / Paid",url:"https://klingai.com/"},
+{name:"CapCut",cat:"Video",icon:"✂️",desc:"Edit videos, captions and short-form content with AI features.",status:"Free / Paid",url:"https://www.capcut.com/"},
+{name:"Grammarly",cat:"Career",icon:"📝",desc:"Improve grammar, clarity and professional writing.",status:"Free / Paid",url:"https://www.grammarly.com/"},
+{name:"LinkedIn",cat:"Career",icon:"💼",desc:"Build your professional profile, network and discover opportunities.",status:"Free / Paid",url:"https://www.linkedin.com/"},
+{name:"Google AI for Students",cat:"Career",icon:"🎓",desc:"Explore Google's student AI benefits and learning resources.",status:"Eligibility varies",url:"https://gemini.google/in/students/"}
+];
+
+const cats=["All","Study","Research","Coding","ECE","Design","Video","Career"];
+let current="All", favs=JSON.parse(localStorage.getItem("aih-favs")||"[]");
+const catBox=document.getElementById("categories"), grid=document.getElementById("grid"), search=document.getElementById("search");
+
+function renderCats(){
+ catBox.innerHTML=cats.map(c=>`<button class="${c===current?'active':''}" onclick="setCat('${c}')">${c}</button>`).join("");
+}
+function setCat(c){current=c;renderCats();render()}
+function render(){
+ const q=search.value.toLowerCase().trim();
+ const list=tools.filter(t=>(current==="All"||t.cat===current)&&(`${t.name} ${t.desc} ${t.cat}`.toLowerCase().includes(q)));
+ grid.innerHTML=list.length?list.map(t=>{
+  const i=tools.indexOf(t), saved=favs.includes(i);
+  return `<article class="card">
+   <div class="icon">${t.icon}</div><h3>${t.name}</h3><p>${t.desc}</p>
+   <div class="meta"><span class="tag">${t.cat}</span><span class="tag">${t.status}</span></div>
+   <div class="actions"><a class="open" href="${t.url}" target="_blank" rel="noopener noreferrer">Open Tool ↗</a>
+   <button class="fav ${saved?'saved':''}" onclick="toggleFav(${i})">${saved?'★':'☆'}</button></div>
+  </article>`
+ }).join(""):`<div class="empty">No tools found. Try another search.</div>`;
+}
+function toggleFav(i){
+ favs=favs.includes(i)?favs.filter(x=>x!==i):[...favs,i];
+ localStorage.setItem("aih-favs",JSON.stringify(favs));render();
+}
+function clearSearch(){search.value="";render();search.focus()}
+search.addEventListener("input",render);
+renderCats();render();
+</script>
+</body>
+</html>
